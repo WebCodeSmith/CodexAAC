@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"path/filepath"
 )
 
 // Stage represents a single rate stage
