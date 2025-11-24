@@ -32,26 +32,30 @@ func main() {
 		log.Println("   Configure JWT_SECRET in .env file for production")
 	}
 
-	// Initialize server configuration from config.lua
-	serverConfigPath := os.Getenv("SERVER_CONFIG_PATH")
-	if serverConfigPath != "" {
-		if err := config.InitServerConfig(serverConfigPath); err != nil {
+	// Initialize server configuration using SERVER_PATH
+	serverPath := os.Getenv("SERVER_PATH")
+	if serverPath != "" {
+		// Path to config.lua inside the server root directory
+		configPath := filepath.Join(serverPath, "config.lua")
+
+		if err := config.InitServerConfig(configPath); err != nil {
 			log.Printf("⚠️  WARNING: Failed to load server config.lua: %v", err)
 			log.Println("   Server configuration will use defaults")
 		} else {
 			log.Println("✅ Server configuration loaded successfully")
 		}
 
-		// Initialize stages configuration from stages.lua
-		// stages.lua is expected to be in the same directory as config.lua
-		if err := config.InitStagesConfig(""); err != nil {
+		// Path to stages.lua inside /data
+		stagesPath := filepath.Join(serverPath, "data", "stages.lua")
+
+		if err := config.InitStagesConfig(stagesPath); err != nil {
 			log.Printf("⚠️  WARNING: Failed to load stages.lua: %v", err)
 			log.Println("   Stages configuration will use defaults")
 		} else {
 			log.Println("✅ Stages configuration loaded successfully")
 		}
 	} else {
-		log.Println("ℹ️  SERVER_CONFIG_PATH not set, server config will use defaults")
+		log.Println("ℹ️  SERVER_PATH not set, server config will use defaults")
 	}
 
 	// Initialize database
@@ -82,22 +86,22 @@ func main() {
 	// Protected routes (require authentication)
 	protected := r.PathPrefix("/api").Subrouter()
 	protected.Use(middleware.AuthMiddleware)
-	
+
 	// Account endpoints
 	protected.HandleFunc("/account", handlers.GetAccountHandler).Methods("GET")
 	protected.HandleFunc("/account", handlers.DeleteAccountHandler).Methods("DELETE")
 	protected.HandleFunc("/account/cancel-deletion", handlers.CancelDeletionHandler).Methods("POST")
-	
+
 	// 2FA endpoints
 	protected.HandleFunc("/account/2fa/status", handlers.Get2FAStatusHandler).Methods("GET")
 	protected.HandleFunc("/account/2fa/enable", handlers.Enable2FAHandler).Methods("POST")
 	protected.HandleFunc("/account/2fa/verify", handlers.Verify2FAHandler).Methods("POST")
 	protected.HandleFunc("/account/2fa/disable", handlers.Disable2FAHandler).Methods("POST")
-	
+
 	// Character endpoints
 	protected.HandleFunc("/characters", handlers.GetCharactersHandler).Methods("GET")
 	protected.HandleFunc("/characters", handlers.CreateCharacterHandler).Methods("POST")
-	
+
 	// Guild endpoints
 	protected.HandleFunc("/guilds", handlers.CreateGuildHandler).Methods("POST")
 	protected.HandleFunc("/guilds/invites", handlers.GetPendingInvitesHandler).Methods("GET")
@@ -105,13 +109,13 @@ func main() {
 	protected.HandleFunc("/guilds/{name}/accept-invite", handlers.AcceptInviteHandler).Methods("POST")
 	protected.HandleFunc("/guilds/{name}/leave", handlers.LeaveGuildHandler).Methods("POST")
 	protected.HandleFunc("/guilds/{name}/kick", handlers.KickPlayerHandler).Methods("POST")
-	
+
 	// Public character details endpoint (anyone can view character info)
 	r.HandleFunc("/api/characters/{name}", handlers.GetCharacterDetailsHandler).Methods("GET")
-	
+
 	// Public guild endpoints (anyone can view guild info, but optional auth for personalized info)
 	r.HandleFunc("/api/guilds", handlers.GetGuildsHandler).Methods("GET")
-	
+
 	// Guild details with optional auth (to show invite button if user is owner/member)
 	guildDetailsRouter := r.PathPrefix("/api/guilds/{name}").Subrouter()
 	guildDetailsRouter.Use(middleware.OptionalAuthMiddleware)
@@ -121,7 +125,7 @@ func main() {
 	admin := r.PathPrefix("/api/admin").Subrouter()
 	admin.Use(middleware.AuthMiddleware)
 	admin.Use(middleware.AdminMiddleware)
-	
+
 	admin.HandleFunc("/stats", handlers.GetAdminStatsHandler).Methods("GET")
 	admin.HandleFunc("/accounts", handlers.GetAdminAccountsHandler).Methods("GET")
 	admin.HandleFunc("/account", handlers.GetAdminAccountDetailsHandler).Methods("GET")
@@ -166,7 +170,3 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		Status:  "ok",
 	})
 }
-
-
-
-

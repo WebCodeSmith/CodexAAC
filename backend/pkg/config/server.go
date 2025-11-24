@@ -210,14 +210,17 @@ func InitServerConfig(configPath string) error {
 	return ReloadServerConfig()
 }
 
-// ReloadServerConfig reloads server configuration from config.lua
+// ReloadServerConfig reloads server configuration from SERVER_PATH/config.lua
 func ReloadServerConfig() error {
+	// Try to determine config.lua path from SERVER_PATH
 	if configFilePath == "" {
-		// Try default path
-		configFilePath = os.Getenv("SERVER_CONFIG_PATH")
-		if configFilePath == "" {
-			return fmt.Errorf("server config path not configured")
+		serverPath := os.Getenv("SERVER_PATH")
+		if serverPath == "" {
+			return fmt.Errorf("SERVER_PATH not configured")
 		}
+
+		// Build full path to config.lua
+		configFilePath = filepath.Join(serverPath, "config.lua")
 	}
 
 	file, err := os.Open(configFilePath)
@@ -234,14 +237,16 @@ func ReloadServerConfig() error {
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		
-		// Skip empty lines and comments
+
+		// Skip empty lines and Lua comments
 		if line == "" || strings.HasPrefix(line, "--") {
 			continue
 		}
 
 		// Parse key-value pairs
-		// Format: key = value or key = "value"
+		// Expected formats:
+		//   key = value
+		//   key = "value"
 		parseConfigLine(line, config)
 	}
 
@@ -249,6 +254,7 @@ func ReloadServerConfig() error {
 		return fmt.Errorf("error reading config.lua: %w", err)
 	}
 
+	// Update global server config safely
 	serverConfigMutex.Lock()
 	serverConfig = config
 	serverConfigMutex.Unlock()
@@ -288,7 +294,7 @@ func parseConfigLine(line string, config *ServerConfig) {
 	// For other fields, skip if value contains expressions
 	keyLower := strings.ToLower(key)
 	allowExpressions := keyLower == "timetodecreasefrags"
-	
+
 	if !allowExpressions && strings.ContainsAny(value, "+-*/%") && !strings.HasPrefix(value, `"`) && !strings.HasPrefix(value, `'`) {
 		return
 	}
@@ -424,4 +430,3 @@ func GetPublicServerConfig() PublicServerConfig {
 		MonthKillsToRedSkull: config.MonthKillsToRedSkull,
 	}
 }
-

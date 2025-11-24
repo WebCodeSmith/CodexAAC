@@ -38,18 +38,17 @@ func InitStagesConfig(stagesPath string) error {
 	return ReloadStagesConfig()
 }
 
-// ReloadStagesConfig reloads stages configuration from stages.lua
+// ReloadStagesConfig reloads stages configuration from SERVER_PATH/data/stages.lua
 func ReloadStagesConfig() error {
+	// Determine stages.lua path from SERVER_PATH
 	if stagesFilePath == "" {
-		// Try to infer path from config.lua path
-		configPath := os.Getenv("SERVER_CONFIG_PATH")
-		if configPath != "" {
-			// Assume stages.lua is in the same directory as config.lua
-			dir := strings.TrimSuffix(configPath, "config.lua")
-			stagesFilePath = dir + "stages.lua"
-		} else {
-			return fmt.Errorf("stages file path not configured")
+		serverPath := os.Getenv("SERVER_PATH")
+		if serverPath == "" {
+			return fmt.Errorf("SERVER_PATH not configured")
 		}
+
+		// Build full path to stages.lua inside /data
+		stagesFilePath = filepath.Join(serverPath, "data", "stages.lua")
 	}
 
 	file, err := os.Open(stagesFilePath)
@@ -77,7 +76,7 @@ func ReloadStagesConfig() error {
 			continue
 		}
 
-		// Check if we're starting a new table
+		// Detect table start
 		if strings.Contains(line, "experienceStages") {
 			currentTable = "experience"
 			continue
@@ -89,14 +88,14 @@ func ReloadStagesConfig() error {
 			continue
 		}
 
-		// Check if we're starting a new stage entry
+		// Detect stage block start
 		if strings.HasPrefix(line, "{") {
 			inStage = true
 			currentStage = Stage{}
 			continue
 		}
 
-		// Check if we're ending a stage entry
+		// Detect stage block end
 		if strings.HasPrefix(line, "}") {
 			if inStage {
 				switch currentTable {
@@ -112,7 +111,7 @@ func ReloadStagesConfig() error {
 			continue
 		}
 
-		// Parse stage properties
+		// Parse stage parameters
 		if inStage {
 			matches := stageEntryRegex.FindStringSubmatch(line)
 			if len(matches) == 3 {
@@ -138,6 +137,7 @@ func ReloadStagesConfig() error {
 		return fmt.Errorf("error reading stages.lua: %w", err)
 	}
 
+	// Safely update global stages config
 	stagesConfigMutex.Lock()
 	stagesConfig = config
 	stagesConfigMutex.Unlock()
@@ -165,4 +165,3 @@ func GetStagesConfig() *StagesConfig {
 		MagicLevelStages: append([]Stage{}, stagesConfig.MagicLevelStages...),
 	}
 }
-
