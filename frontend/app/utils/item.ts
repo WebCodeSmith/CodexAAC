@@ -1,9 +1,3 @@
-export interface EquipmentItem {
-  slot: number
-  itemId: number
-  count: number
-}
-
 export const getItemImageUrl = (itemId: number): string => {
   const baseUrl = process.env.NEXT_PUBLIC_ITEM_IMAGE_BASE_URL?.trim()
 

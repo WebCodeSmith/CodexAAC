@@ -6,7 +6,6 @@ import { getItemImageUrl } from '../../utils/item'
 const formatNumber = (num: number): string => num.toLocaleString('pt-BR')
 
 interface EquipmentSlotProps {
-  slot: number
   item: EquipmentItem | null
   placeholder: string
   placeholderSize?: 'base' | 'lg'
@@ -139,22 +138,22 @@ export default function CharacterDetailsSection({ character }: { character: Char
             <h3 className="text-[#ffd700] text-sm font-bold mb-2 text-center">Inventory:</h3>
             <div className="flex gap-1.5 justify-center mb-2">
               <div className="flex flex-col gap-1.5 mt-[1rem]">
-                <EquipmentSlot slot={2} item={getItemForSlot(2)} placeholder="💎" placeholderSize="lg" />
-                <EquipmentSlot slot={0} item={null} placeholder="🧤" />
-                <EquipmentSlot slot={9} item={getItemForSlot(9)} placeholder="💍" />
+                <EquipmentSlot item={getItemForSlot(2)} placeholder="💎" placeholderSize="lg" />
+                <EquipmentSlot item={null} placeholder="🧤" />
+                <EquipmentSlot item={getItemForSlot(9)} placeholder="💍" />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <EquipmentSlot slot={1} item={getItemForSlot(1)} placeholder="⛑️" />
-                <EquipmentSlot slot={4} item={getItemForSlot(4)} placeholder="🛡️" />
-                <EquipmentSlot slot={7} item={getItemForSlot(7)} placeholder="👖" />
-                <EquipmentSlot slot={8} item={getItemForSlot(8)} placeholder="👢" />
+                <EquipmentSlot item={getItemForSlot(1)} placeholder="⛑️" />
+                <EquipmentSlot item={getItemForSlot(4)} placeholder="🛡️" />
+                <EquipmentSlot item={getItemForSlot(7)} placeholder="👖" />
+                <EquipmentSlot item={getItemForSlot(8)} placeholder="👢" />
               </div>
 
               <div className="flex flex-col gap-1.5 mt-[1rem]">
-                <EquipmentSlot slot={3} item={getItemForSlot(3)} placeholder="🎒" />
-                <EquipmentSlot slot={0} item={null} placeholder="🧤" />
-                <EquipmentSlot slot={10} item={getItemForSlot(10)} placeholder="➡️" />
+                <EquipmentSlot item={getItemForSlot(3)} placeholder="🎒" />
+                <EquipmentSlot item={null} placeholder="🧤" />
+                <EquipmentSlot item={getItemForSlot(10)} placeholder="➡️" />
               </div>
             </div>
 
