@@ -38,44 +38,44 @@ type TibiaClientCharacter struct {
 		LookFeet   int `json:"lookfeet"`
 		LookAddons int `json:"lookaddons"`
 	} `json:"outfit"`
-	LastLogin int64 `json:"lastLogin"`
-	IsMale    bool  `json:"ismale"`
-	Tutorial  bool  `json:"tutorial"`
-	IsMain    bool  `json:"isMain"`
+	LastLogin int64  `json:"lastLogin"`
+	IsMale    bool   `json:"ismale"`
+	Tutorial  bool   `json:"tutorial"`
+	IsMain    bool   `json:"isMain"`
 	World     string `json:"world"`
 }
 
 type TibiaClientWorld struct {
-	ID                        int    `json:"id"`
-	Name                      string `json:"name"`
-	ExternalAddress           string `json:"externaladdress"`
-	ExternalAddressProtected  string `json:"externaladdressprotected"`
+	ID                         int    `json:"id"`
+	Name                       string `json:"name"`
+	ExternalAddress            string `json:"externaladdress"`
+	ExternalAddressProtected   string `json:"externaladdressprotected"`
 	ExternalAddressUnprotected string `json:"externaladdressunprotected"`
-	ExternalPort              int    `json:"externalport"`
-	ExternalPortProtected     int    `json:"externalportprotected"`
-	ExternalPortUnprotected   int    `json:"externalportunprotected"`
-	PreviewState              int    `json:"previewstate"`
-	Location                  string `json:"location"`
-	AnticheatProtection       bool   `json:"anticheatprotection"`
-	PvPType                   int    `json:"pvptype"`
-	IsTournamentWorld         bool   `json:"istournamentworld"`
-	RestrictedStore           bool   `json:"restrictedstore"`
-	CurrentTournamentPhase    int    `json:"currenttournamentphase"`
+	ExternalPort               int    `json:"externalport"`
+	ExternalPortProtected      int    `json:"externalportprotected"`
+	ExternalPortUnprotected    int    `json:"externalportunprotected"`
+	PreviewState               int    `json:"previewstate"`
+	Location                   string `json:"location"`
+	AnticheatProtection        bool   `json:"anticheatprotection"`
+	PvPType                    int    `json:"pvptype"`
+	IsTournamentWorld          bool   `json:"istournamentworld"`
+	RestrictedStore            bool   `json:"restrictedstore"`
+	CurrentTournamentPhase     int    `json:"currenttournamentphase"`
 }
 
 type TibiaClientSession struct {
-	SessionKey                  string `json:"sessionkey"`
-	LastLoginTime               int64  `json:"lastlogintime"`
-	IsPremium                   bool   `json:"ispremium"`
-	PremiumUntil                int64  `json:"premiumuntil"`
-	Status                      string `json:"status"`
-	ReturnerNotification        bool   `json:"returnernotification"`
-	ShowRewardNews              bool   `json:"showrewardnews"`
-	IsReturner                  bool   `json:"isreturner"`
-	FpsTracking                 bool   `json:"fpstracking"`
-	OptionTracking              bool   `json:"optiontracking"`
-	TournamentTicketPurchaseState int  `json:"tournamentticketpurchasestate"`
-	EmailCodeRequest            bool   `json:"emailcoderequest"`
+	SessionKey                   string `json:"sessionkey"`
+	LastLoginTime                int64  `json:"lastlogintime"`
+	IsPremium                    bool   `json:"ispremium"`
+	PremiumUntil                 int64  `json:"premiumuntil"`
+	Status                       string `json:"status"`
+	ReturnerNotification         bool   `json:"returnernotification"`
+	ShowRewardNews               bool   `json:"showrewardnews"`
+	IsReturner                   bool   `json:"isreturner"`
+	FpsTracking                  bool   `json:"fpstracking"`
+	OptionTracking               bool   `json:"optiontracking"`
+	TournamentTicketPurchaseState int   `json:"tournamentticketpurchasestate"`
+	EmailCodeRequest             bool   `json:"emailcoderequest"`
 }
 
 type TibiaClientLoginResponse struct {
@@ -104,22 +104,22 @@ func TibiaClientLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req TibiaClientLoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		sendTibiaError(w, "Requisição inválida")
+		sendTibiaError(w, "Invalid request")
 		return
 	}
 
 	if req.Type == "" {
-		sendTibiaError(w, "Tipo de requisição inválido")
+		sendTibiaError(w, "Invalid request type")
 		return
 	}
 
 	if req.Type != "login" {
-		sendTibiaError(w, "Tipo de requisição inválido")
+		sendTibiaError(w, "Invalid request type")
 		return
 	}
 
 	if req.Email == "" || req.Password == "" {
-		sendTibiaError(w, "Email e senha são obrigatórios")
+		sendTibiaError(w, "Email and password required")
 		return
 	}
 
@@ -140,7 +140,7 @@ func TibiaClientLoginHandler(w http.ResponseWriter, r *http.Request) {
 			sendTibiaError(w, "Account not found")
 			return
 		}
-		sendTibiaError(w, "Erro interno do servidor")
+		sendTibiaError(w, "Internal server error")
 		return
 	}
 
@@ -161,7 +161,7 @@ func TibiaClientLoginHandler(w http.ResponseWriter, r *http.Request) {
 		accountID,
 	)
 	if err != nil {
-		sendTibiaError(w, "Erro interno do servidor")
+		sendTibiaError(w, "Internal server error")
 		return
 	}
 	defer rows.Close()
@@ -196,8 +196,8 @@ func TibiaClientLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	worldTypeMap := map[string]int{
-		"pvp":         0,
-		"no-pvp":      1,
+		"pvp":          0,
+		"no-pvp":       1,
 		"pvp-enforced": 2,
 	}
 	pvpType, ok := worldTypeMap[serverConfig.WorldType]
@@ -206,21 +206,21 @@ func TibiaClientLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	world := TibiaClientWorld{
-		ID:                        0,
-		Name:                      serverConfig.ServerName,
-		ExternalAddress:           serverConfig.IP,
-		ExternalAddressProtected:  serverConfig.IP,
+		ID:                         0,
+		Name:                       serverConfig.ServerName,
+		ExternalAddress:            serverConfig.IP,
+		ExternalAddressProtected:   serverConfig.IP,
 		ExternalAddressUnprotected: serverConfig.IP,
-		ExternalPort:              serverConfig.GamePort,
-		ExternalPortProtected:    serverConfig.GamePort,
-		ExternalPortUnprotected:   serverConfig.GamePort,
-		PreviewState:              0,
-		Location:                  serverConfig.Location,
-		AnticheatProtection:       false,
-		PvPType:                   pvpType,
-		IsTournamentWorld:         false,
-		RestrictedStore:          false,
-		CurrentTournamentPhase:    2,
+		ExternalPort:               serverConfig.GamePort,
+		ExternalPortProtected:      serverConfig.GamePort,
+		ExternalPortUnprotected:    serverConfig.GamePort,
+		PreviewState:               0,
+		Location:                   serverConfig.Location,
+		AnticheatProtection:        false,
+		PvPType:                    pvpType,
+		IsTournamentWorld:          false,
+		RestrictedStore:            false,
+		CurrentTournamentPhase:     2,
 	}
 
 	premiumUntil := time.Now().Unix()
@@ -229,18 +229,18 @@ func TibiaClientLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session := TibiaClientSession{
-		SessionKey:                  req.Email + "\n" + req.Password,
-		LastLoginTime:               0,
-		IsPremium:                   premdays > 0,
-		PremiumUntil:                premiumUntil,
-		Status:                      "active",
-		ReturnerNotification:       false,
-		ShowRewardNews:              false,
-		IsReturner:                  true,
-		FpsTracking:                 false,
-		OptionTracking:              false,
+		SessionKey:                   req.Email + "\n" + req.Password,
+		LastLoginTime:                0,
+		IsPremium:                    premdays > 0,
+		PremiumUntil:                 premiumUntil,
+		Status:                       "active",
+		ReturnerNotification:         false,
+		ShowRewardNews:               false,
+		IsReturner:                   true,
+		FpsTracking:                  false,
+		OptionTracking:               false,
 		TournamentTicketPurchaseState: 0,
-		EmailCodeRequest:            false,
+		EmailCodeRequest:             false,
 	}
 
 	response := TibiaClientLoginResponse{
