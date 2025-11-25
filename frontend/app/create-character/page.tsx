@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '../services/api'
 
@@ -16,6 +17,7 @@ const CHARACTER_NAME_MIN_LENGTH = 3
 const CHARACTER_NAME_MAX_LENGTH = 20
 
 export default function CreateCharacterPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     characterName: '',
     vocation: '',
@@ -82,12 +84,9 @@ export default function CreateCharacterPage() {
       })
       
       setSuccess(true)
-      setFormData({
-        characterName: '',
-        vocation: '',
-        sex: 'male',
-        agreeToTerms: false,
-      })
+      setTimeout(() => {
+        router.push('/account')
+      }, 1500)
     } catch (err: any) {
       setError(err.message || 'Error creating character. Please try again.')
     } finally {
@@ -118,7 +117,7 @@ export default function CreateCharacterPage() {
 
               {success && (
                 <div className="mb-4 p-3 bg-green-900/30 border border-green-700 rounded text-green-300 text-sm">
-                  Character created successfully! You can log in now.
+                  Character created successfully! Redirecting to your account...
                 </div>
               )}
 
