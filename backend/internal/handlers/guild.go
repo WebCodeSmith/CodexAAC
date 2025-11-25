@@ -141,16 +141,6 @@ func GetGuildsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		minLevel := config.GetMinGuildLevel()
-		if characterLevel < minLevel {
-			utils.WriteError(
-				w,
-				http.StatusForbidden,
-				"Character level is too low to create a guild. Minimum required level is "+strconv.Itoa(minLevel),
-			)
-			return
-		}
-
 		utils.WriteError(w, http.StatusInternalServerError, "Error fetching guilds")
 		return
 	}
@@ -575,6 +565,13 @@ func CreateGuildHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		utils.WriteError(w, http.StatusInternalServerError, "Error verifying character")
+		return
+	}
+
+	minLevel := config.GetMinGuildLevel()
+	if characterLevel < minLevel {
+		msg := "Character level is " + strconv.Itoa(characterLevel) + ", but you need to be at least level " + strconv.Itoa(minLevel) + " to create a guild"
+		utils.WriteError(w, http.StatusForbidden, msg)
 		return
 	}
 
