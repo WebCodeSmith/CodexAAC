@@ -60,8 +60,8 @@ type GuildDetails struct {
 	Ranks           []GuildRank       `json:"ranks"`
 	PendingInvites  []PendingInviteItem `json:"pendingInvites"`
 	HasPendingInvite bool              `json:"hasPendingInvite,omitempty"`
-	IsMember        bool               `json:"isMember,omitempty"`          
-	CanInvite       bool               `json:"canInvite,omitempty"`        
+	IsMember        bool               `json:"isMember,omitempty"`
+	CanInvite       bool               `json:"canInvite,omitempty"`
 }
 
 // GuildListItem represents a guild in the list view
@@ -108,7 +108,7 @@ func GetGuildsHandler(w http.ResponseWriter, r *http.Request) {
 		query = `
 			SELECT g.id, g.name, g.level, g.points,
 			       p.name as owner_name,
-			       GREATEST(COUNT(DISTINCT gm.player_id) + 
+			       GREATEST(COUNT(DISTINCT gm.player_id) +
 			                CASE WHEN SUM(CASE WHEN gm.player_id = g.ownerid THEN 1 ELSE 0 END) = 0 THEN 1 ELSE 0 END, 1) as member_count
 			FROM guilds g
 			LEFT JOIN players p ON g.ownerid = p.id
@@ -123,7 +123,7 @@ func GetGuildsHandler(w http.ResponseWriter, r *http.Request) {
 		query = `
 			SELECT g.id, g.name, g.level, g.points,
 			       p.name as owner_name,
-			       GREATEST(COUNT(DISTINCT gm.player_id) + 
+			       GREATEST(COUNT(DISTINCT gm.player_id) +
 			                CASE WHEN SUM(CASE WHEN gm.player_id = g.ownerid THEN 1 ELSE 0 END) = 0 THEN 1 ELSE 0 END, 1) as member_count
 			FROM guilds g
 			LEFT JOIN players p ON g.ownerid = p.id
@@ -140,6 +140,17 @@ func GetGuildsHandler(w http.ResponseWriter, r *http.Request) {
 		if utils.HandleDBError(w, err) {
 			return
 		}
+
+		minLevel := config.GetMinGuildLevel()
+		if characterLevel < minLevel {
+			utils.WriteError(
+				w,
+				http.StatusForbidden,
+				"Character level is too low to create a guild. Minimum required level is "+strconv.Itoa(minLevel),
+			)
+			return
+		}
+
 		utils.WriteError(w, http.StatusInternalServerError, "Error fetching guilds")
 		return
 	}
@@ -219,7 +230,7 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	var motd sql.NullString
 
 	err = database.DB.QueryRowContext(ctx,
-		`SELECT g.id, g.name, g.level, g.ownerid, g.creationdata, 
+		`SELECT g.id, g.name, g.level, g.ownerid, g.creationdata,
 		        g.motd, g.balance, g.points,
 		        p.name as owner_name
 		 FROM guilds g
@@ -262,9 +273,9 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rankRows, err := database.DB.QueryContext(ctx,
-		`SELECT id, name, level 
-		 FROM guild_ranks 
-		 WHERE guild_id = ? 
+		`SELECT id, name, level
+		 FROM guild_ranks
+		 WHERE guild_id = ?
 		 ORDER BY level DESC`,
 		guild.ID,
 	)
@@ -279,10 +290,10 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	memberRows, err := database.DB.QueryContext(ctx,
-		`SELECT p.id, p.name, p.level, p.vocation, 
-		        COALESCE(gr.name, 'Member') as rank_name, 
+		`SELECT p.id, p.name, p.level, p.vocation,
+		        COALESCE(gr.name, 'Member') as rank_name,
 		        COALESCE(gr.level, 0) as rank_level,
-		        COALESCE(gm.nick, '') as nick, 
+		        COALESCE(gm.nick, '') as nick,
 		        CASE WHEN po.player_id IS NOT NULL THEN 'online' ELSE 'offline' END as status
 		 FROM guild_membership gm
 		 INNER JOIN players p ON gm.player_id = p.id
@@ -292,7 +303,7 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		 ORDER BY COALESCE(gr.level, 0) DESC, p.level DESC, p.name ASC`,
 		guild.ID,
 	)
-	
+
 	if err != nil {
 	} else {
 		defer memberRows.Close()
@@ -317,7 +328,7 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			if scanErr != nil {
 				continue
 			}
-			
+
 			member.Vocation = config.GetVocationName(vocationID)
 			if rankName.Valid {
 				member.Rank = rankName.String
@@ -344,20 +355,20 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	
+
 	if !ownerExists {
 		var ownerLevel int
 		var ownerVocationID int
 		var ownerStatus string
 		ownerErr := database.DB.QueryRowContext(ctx,
-			`SELECT p.level, p.vocation, 
+			`SELECT p.level, p.vocation,
 			        CASE WHEN po.player_id IS NOT NULL THEN 'online' ELSE 'offline' END as status
 			 FROM players p
 			 LEFT JOIN players_online po ON p.id = po.player_id
 			 WHERE p.id = ?`,
 			guild.OwnerID,
 		).Scan(&ownerLevel, &ownerVocationID, &ownerStatus)
-		
+
 		if ownerErr == nil {
 			ownerMember := GuildMember{
 				PlayerID:   guild.OwnerID,
@@ -429,15 +440,15 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 		var isOwner bool
 		var userRankLevel int
-		
+
 		err = database.DB.QueryRowContext(ctx,
 			`SELECT EXISTS(
-				SELECT 1 FROM players p 
+				SELECT 1 FROM players p
 				WHERE p.id = ? AND p.account_id = ?
 			)`,
 			guild.OwnerID, userID,
 		).Scan(&isOwner)
-		
+
 		if err == nil && isOwner {
 			guild.IsMember = true
 			guild.CanInvite = true
@@ -452,7 +463,7 @@ func GetGuildDetailsHandler(w http.ResponseWriter, r *http.Request) {
 				 LIMIT 1`,
 				guild.ID, userID,
 			).Scan(&rankLevel)
-			
+
 			if err == nil {
 				if rankLevel.Valid {
 					userRankLevel = int(rankLevel.Int64)
@@ -626,7 +637,7 @@ func CreateGuildHandler(w http.ResponseWriter, r *http.Request) {
 
 	creationTime := time.Now().Unix()
 	result, err := tx.ExecContext(ctx,
-		`INSERT INTO guilds (name, ownerid, creationdata, motd, level, balance, points) 
+		`INSERT INTO guilds (name, ownerid, creationdata, motd, level, balance, points)
 		 VALUES (?, ?, ?, ?, 1, 0, 0)`,
 		req.Name, characterID, creationTime, req.MOTD,
 	)
@@ -787,7 +798,7 @@ func InvitePlayerHandler(w http.ResponseWriter, r *http.Request) {
 		`SELECT id FROM players WHERE id = ? AND account_id = ?`,
 		ownerID, userID,
 	).Scan(&userCharacterID)
-	
+
 	if err == nil {
 		isOwner = true
 		userRankLevel = 999 // Owner has highest rank
@@ -1280,7 +1291,7 @@ func LeaveGuildHandler(w http.ResponseWriter, r *http.Request) {
 	var isMember bool
 	err = tx.QueryRowContext(ctx,
 		`SELECT EXISTS(
-			SELECT 1 FROM guild_membership 
+			SELECT 1 FROM guild_membership
 			WHERE player_id = ? AND guild_id = ?
 		)`,
 		characterID, guildID,
@@ -1479,7 +1490,7 @@ func KickPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	var isMember bool
 	err = tx.QueryRowContext(ctx,
 		`SELECT EXISTS(
-			SELECT 1 FROM guild_membership 
+			SELECT 1 FROM guild_membership
 			WHERE player_id = ? AND guild_id = ?
 		)`,
 		playerToKickID, guildID,

@@ -36,6 +36,7 @@ Required environment variables:
 
 Optional environment variables:
 - `ACCOUNT_DELETION_GRACE_PERIOD_DAYS` - Grace period in days before account deletion (default: 30)
+- `MIN_GUILD_LEVEL` - Minimum player level required to create a guild (default: 8)
 
 ## Running
 

@@ -329,6 +329,19 @@ func GetServerName() string {
 	return "CodexAAC" // Default fallback
 }
 
+func GetMinGuildLevel() int {
+	const defaultMinGuildLevel = 8
+	envVal := strings.TrimSpace(os.Getenv("MIN_GUILD_LEVEL"))
+	if envVal == "" {
+		return defaultMinGuildLevel
+	}
+
+	if parsed, err := strconv.Atoi(envVal); err == nil && parsed > 0 {
+		return parsed
+	}
+	return defaultMinGuildLevel
+}
+
 // PublicServerConfig represents the public server configuration (for API responses)
 type PublicServerConfig struct {
 	ServerName         string `json:"serverName"`
@@ -359,6 +372,7 @@ type PublicServerConfig struct {
 	DayKillsToRedSkull   int `json:"dayKillsToRedSkull"`
 	WeekKillsToRedSkull  int `json:"weekKillsToRedSkull"`
 	MonthKillsToRedSkull int `json:"monthKillsToRedSkull"`
+	MinLevelToCreateGuild int `json:"minLevelToCreateGuild"`
 }
 
 // GetPublicServerConfig returns the public server configuration (excludes sensitive data)
@@ -393,5 +407,6 @@ func GetPublicServerConfig() PublicServerConfig {
 		DayKillsToRedSkull:   config.DayKillsToRedSkull,
 		WeekKillsToRedSkull:  config.WeekKillsToRedSkull,
 		MonthKillsToRedSkull: config.MonthKillsToRedSkull,
+		MinLevelToCreateGuild: GetMinGuildLevel(),
 	}
 }

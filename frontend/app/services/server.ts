@@ -31,6 +31,7 @@ export interface ServerConfig {
   dayKillsToRedSkull: number
   weekKillsToRedSkull: number
   monthKillsToRedSkull: number
+  minLevelToCreateGuild?: number
 }
 
 let cachedConfig: ServerConfig | null = null
