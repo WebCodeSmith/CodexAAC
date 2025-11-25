@@ -37,6 +37,11 @@ type CharacterCreationConfig struct {
 }
 
 func GetCharacterCreationConfig() *CharacterCreationConfig {
+	defaultTown := 1
+	if len(Towns) > 0 {
+		defaultTown = Towns[0].ID
+	}
+
 	return &CharacterCreationConfig{
 		GroupID:         1,
 		Cap:             470,
@@ -46,7 +51,7 @@ func GetCharacterCreationConfig() *CharacterCreationConfig {
 		MaxMana:         185,
 		ManaSpent:       0,
 		Experience:      4200,
-		TownID:          1,
+		TownID:          defaultTown,
 		SkillFist:       10,
 		SkillClub:       10,
 		SkillClubTries:  0,
@@ -120,4 +125,3 @@ func GetSexName(sexID int) string {
 	}
 	return "unknown"
 }
-

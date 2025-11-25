@@ -25,6 +25,8 @@ func main() {
 		log.Println(".env file not found, using system environment variables")
 	}
 
+	config.InitTowns(os.Getenv("CHARACTER_TOWNS"))
+
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		log.Println("⚠️  WARNING: JWT_SECRET is not configured. Using default key for development (NOT SAFE FOR PRODUCTION)")
@@ -72,9 +74,10 @@ func main() {
 	r.HandleFunc("/api/logout", handlers.LogoutHandler).Methods("POST")
 	r.HandleFunc("/api/server/config", handlers.GetServerConfigHandler).Methods("GET")
 	r.HandleFunc("/api/server/stages", handlers.GetStagesConfigHandler).Methods("GET")
+	r.HandleFunc("/api/towns", handlers.GetTownsHandler).Methods("GET")
 	r.HandleFunc("/api/social/links", handlers.GetSocialLinksHandler).Methods("GET")
 	r.HandleFunc("/api/maintenance/status", handlers.GetMaintenanceStatusPublicHandler).Methods("GET")
-	
+
 	r.HandleFunc("/login", handlers.TibiaClientLoginHandler).Methods("POST", "OPTIONS")
 
 	protected := r.PathPrefix("/api").Subrouter()
@@ -83,27 +86,27 @@ func main() {
 	protected.HandleFunc("/account", handlers.GetAccountHandler).Methods("GET")
 	protected.HandleFunc("/account", handlers.DeleteAccountHandler).Methods("DELETE")
 	protected.HandleFunc("/account/cancel-deletion", handlers.CancelDeletionHandler).Methods("POST")
-	
+
 	protected.HandleFunc("/account/2fa/status", handlers.Get2FAStatusHandler).Methods("GET")
 	protected.HandleFunc("/account/2fa/enable", handlers.Enable2FAHandler).Methods("POST")
 	protected.HandleFunc("/account/2fa/verify", handlers.Verify2FAHandler).Methods("POST")
 	protected.HandleFunc("/account/2fa/disable", handlers.Disable2FAHandler).Methods("POST")
-	
+
 	protected.HandleFunc("/characters", handlers.GetCharactersHandler).Methods("GET")
 	protected.HandleFunc("/characters", handlers.CreateCharacterHandler).Methods("POST")
-	
+
 	protected.HandleFunc("/guilds", handlers.CreateGuildHandler).Methods("POST")
 	protected.HandleFunc("/guilds/invites", handlers.GetPendingInvitesHandler).Methods("GET")
 	protected.HandleFunc("/guilds/{name}/invite", handlers.InvitePlayerHandler).Methods("POST")
 	protected.HandleFunc("/guilds/{name}/accept-invite", handlers.AcceptInviteHandler).Methods("POST")
 	protected.HandleFunc("/guilds/{name}/leave", handlers.LeaveGuildHandler).Methods("POST")
 	protected.HandleFunc("/guilds/{name}/kick", handlers.KickPlayerHandler).Methods("POST")
-	
+
 	r.HandleFunc("/api/characters/{name}", handlers.GetCharacterDetailsHandler).Methods("GET")
 	r.HandleFunc("/api/players/online", handlers.GetOnlinePlayersHandler).Methods("GET")
 	r.HandleFunc("/api/changelogs", handlers.GetChangelogsHandler).Methods("GET")
 	r.HandleFunc("/api/guilds", handlers.GetGuildsHandler).Methods("GET")
-	
+
 	guildDetailsRouter := r.PathPrefix("/api/guilds/{name}").Subrouter()
 	guildDetailsRouter.Use(middleware.OptionalAuthMiddleware)
 	guildDetailsRouter.HandleFunc("", handlers.GetGuildDetailsHandler).Methods("GET")

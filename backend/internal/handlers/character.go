@@ -18,6 +18,7 @@ type CreateCharacterRequest struct {
 	Name     string `json:"name"`
 	Vocation string `json:"vocation"`
 	Sex      string `json:"sex"`
+	TownID   int    `json:"town_id,omitempty"`
 }
 
 type CreateCharacterResponse struct {
@@ -112,6 +113,16 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
+	townID := charConfig.TownID
+	if req.TownID != 0 {
+		if !config.IsValidTown(req.TownID) {
+			utils.WriteError(w, http.StatusBadRequest, "Invalid town selection")
+			return
+		}
+
+		townID = req.TownID
+	}
+
 	result, err := database.DB.ExecContext(ctx, query,
 		req.Name,                   // name
 		charConfig.GroupID,         // group_id
@@ -130,7 +141,7 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 		charConfig.Mana,            // mana
 		charConfig.MaxMana,         // manamax
 		charConfig.ManaSpent,       // manaspent
-		charConfig.TownID,          // town_id
+		townID,                     // town_id
 		[]byte{},                   // conditions (empty blob)
 		charConfig.Cap,             // cap
 		sexID,                      // sex
@@ -293,6 +304,7 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	var vocationID, sexID int
 	var lastLogin, created int64
 	var townName, guildName, guildRank sql.NullString
+	var townID sql.NullInt64
 	var premdays int
 
 	query := `
@@ -306,6 +318,7 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			COALESCE(a.creation, 0) as creation,
 			CASE WHEN po.player_id IS NOT NULL THEN 'online' ELSE 'offline' END as status,
 			COALESCE(t.name, 'Unknown') as town_name,
+			COALESCE(p.town_id, 0) as town_id,
 			g.name as guild_name,
 			gr.name as guild_rank,
 			COALESCE(a.premdays, 0) as premdays,
@@ -337,6 +350,7 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		&created,
 		&char.Status,
 		&townName,
+		&townID,
 		&guildName,
 		&guildRank,
 		&premdays,
@@ -366,6 +380,12 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if townName.Valid {
 		char.Residence = townName.String
+	} else if townID.Valid && config.IsValidTown(int(townID.Int64)) {
+		if name, ok := config.GetTownName(int(townID.Int64)); ok {
+			char.Residence = name
+		} else {
+			char.Residence = "Unknown"
+		}
 	} else {
 		char.Residence = "Unknown"
 	}
@@ -457,7 +477,7 @@ func GetOnlinePlayersHandler(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * limit
 
 	query := `
-		SELECT 
+		SELECT
 			p.name,
 			p.level,
 			p.vocation,
@@ -471,7 +491,7 @@ func GetOnlinePlayersHandler(w http.ResponseWriter, r *http.Request) {
 		INNER JOIN players p ON po.player_id = p.id
 		WHERE p.deletion = 0
 	`
-	
+
 	args := make([]interface{}, 0, 3)
 	if search != "" {
 		query += " AND p.name LIKE ?"
