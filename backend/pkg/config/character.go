@@ -8,28 +8,28 @@ const (
 
 // CharacterCreationConfig holds default values for character creation
 type CharacterCreationConfig struct {
-	// Health and Mana
+	GroupID   int
+	Cap       int
 	Health    int
 	MaxHealth int
 	Mana      int
 	MaxMana   int
-
+	ManaSpent int
 	Experience int64
-
 	TownID int
-
 	SkillFist      int
 	SkillClub      int
+	SkillClubTries  int
 	SkillSword     int
+	SkillSwordTries int
 	SkillAxe       int
+	SkillAxeTries   int
 	SkillDist      int
+	SkillDistTries  int
 	SkillShielding int
 	SkillFishing   int
-
 	MagLevel int
-
 	Level int
-
 	LookBody  int
 	LookFeet  int
 	LookHead  int
@@ -38,25 +38,32 @@ type CharacterCreationConfig struct {
 
 func GetCharacterCreationConfig() *CharacterCreationConfig {
 	return &CharacterCreationConfig{
-		Health:         185,
-		MaxHealth:      185,
-		Mana:           185,
-		MaxMana:        185,
-		Experience:     4200,
-		TownID:         1,
-		SkillFist:      10,
-		SkillClub:      10,
-		SkillSword:     10,
-		SkillAxe:       10,
-		SkillDist:      10,
-		SkillShielding: 10,
-		SkillFishing:   10,
-		MagLevel:       0,
-		Level:          1,
-		LookBody:       85,
-		LookFeet:       114,
-		LookHead:       19,
-		LookLegs:       86,
+		GroupID:         1,
+		Cap:             470,
+		Health:          185,
+		MaxHealth:       185,
+		Mana:            185,
+		MaxMana:         185,
+		ManaSpent:       0,
+		Experience:      4200,
+		TownID:          1,
+		SkillFist:       10,
+		SkillClub:       10,
+		SkillClubTries:  0,
+		SkillSword:      10,
+		SkillSwordTries: 0,
+		SkillAxe:        10,
+		SkillAxeTries:   0,
+		SkillDist:       10,
+		SkillDistTries:  0,
+		SkillShielding:  10,
+		SkillFishing:    10,
+		MagLevel:        0,
+		Level:           8,
+		LookBody:        69,
+		LookFeet:        76,
+		LookHead:        78,
+		LookLegs:        58,
 	}
 }
 

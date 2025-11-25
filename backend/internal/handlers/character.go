@@ -99,40 +99,48 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 
 	query := `
 		INSERT INTO players (
-			name, account_id, vocation, health, healthmax, mana, manamax,
-			experience, town_id, sex, maglevel, level,
-			skill_fist, skill_club, skill_sword, skill_axe, skill_dist,
-			skill_shielding, skill_fishing, conditions,
-			lookbody, lookfeet, lookhead, looklegs, looktype
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			name, group_id, account_id, level, vocation,
+			health, healthmax, experience,
+			lookbody, lookfeet, lookhead, looklegs, looktype,
+			maglevel, mana, manamax, manaspent, town_id,
+			conditions, cap, sex,
+			skill_club, skill_club_tries,
+			skill_sword, skill_sword_tries,
+			skill_axe, skill_axe_tries,
+			skill_dist, skill_dist_tries
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := database.DB.ExecContext(ctx, query,
-		req.Name,           // name
-		userID,             // account_id
-		vocationID,         // vocation
-		charConfig.Health,  // health
-		charConfig.MaxHealth, // healthmax
-		charConfig.Mana,    // mana
-		charConfig.MaxMana, // manamax
-		charConfig.Experience, // experience
-		charConfig.TownID,  // town_id
-		sexID,              // sex
-		charConfig.MagLevel, // maglevel
-		charConfig.Level,   // level
-		charConfig.SkillFist,      // skill_fist
-		charConfig.SkillClub,      // skill_club
-		charConfig.SkillSword,     // skill_sword
-		charConfig.SkillAxe,       // skill_axe
-		charConfig.SkillDist,      // skill_dist
-		charConfig.SkillShielding, // skill_shielding
-		charConfig.SkillFishing,   // skill_fishing
-		[]byte{},           // conditions (empty blob)
-		charConfig.LookBody, // lookbody
-		charConfig.LookFeet, // lookfeet
-		charConfig.LookHead, // lookhead
-		charConfig.LookLegs, // looklegs
-		lookType,            // looktype (based on sex: male=128, female=136)
+		req.Name,                   // name
+		charConfig.GroupID,         // group_id
+		userID,                     // account_id
+		charConfig.Level,           // level
+		vocationID,                 // vocation
+		charConfig.Health,          // health
+		charConfig.MaxHealth,       // healthmax
+		charConfig.Experience,      // experience
+		charConfig.LookBody,        // lookbody
+		charConfig.LookFeet,        // lookfeet
+		charConfig.LookHead,        // lookhead
+		charConfig.LookLegs,        // looklegs
+		lookType,                   // looktype
+		charConfig.MagLevel,        // maglevel
+		charConfig.Mana,            // mana
+		charConfig.MaxMana,         // manamax
+		charConfig.ManaSpent,       // manaspent
+		charConfig.TownID,          // town_id
+		[]byte{},                   // conditions (empty blob)
+		charConfig.Cap,             // cap
+		sexID,                      // sex
+		charConfig.SkillClub,       // skill_club
+		charConfig.SkillClubTries,  // skill_club_tries
+		charConfig.SkillSword,      // skill_sword
+		charConfig.SkillSwordTries, // skill_sword_tries
+		charConfig.SkillAxe,        // skill_axe
+		charConfig.SkillAxeTries,   // skill_axe_tries
+		charConfig.SkillDist,       // skill_dist
+		charConfig.SkillDistTries,  // skill_dist_tries
 	)
 
 	if err != nil {
@@ -180,10 +188,10 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := `
-		SELECT 
-			p.id, 
-			p.name, 
-			p.vocation, 
+		SELECT
+			p.id,
+			p.name,
+			p.vocation,
 			p.level,
 			CASE WHEN po.player_id IS NOT NULL THEN 'online' ELSE 'offline' END as status,
 			COALESCE(p.looktype, 128) as looktype,
@@ -213,7 +221,7 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
 		var char Character
 		var vocationID int
 		var status string
-		
+
 		if err := rows.Scan(&char.ID, &char.Name, &vocationID, &char.Level, &status, &char.LookType, &char.LookHead, &char.LookBody, &char.LookLegs, &char.LookFeet, &char.LookAddons); err != nil {
 			utils.WriteError(w, http.StatusInternalServerError, "Error reading character data")
 			return
@@ -287,7 +295,7 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	var premdays int
 
 	query := `
-		SELECT 
+		SELECT
 			p.id,
 			p.name,
 			p.sex,
