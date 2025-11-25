@@ -27,13 +27,18 @@ type CharacterCreationConfig struct {
 	SkillDist      int
 	SkillDistTries  int
 	SkillShielding int
+	SkillShieldingTries int
 	SkillFishing   int
+	SkillFishingTries int
+	SkillFistTries int
 	MagLevel int
 	Level int
 	LookBody  int
 	LookFeet  int
 	LookHead  int
 	LookLegs  int
+	LookAddons int
+	Stamina int
 }
 
 func GetCharacterCreationConfig() *CharacterCreationConfig {
@@ -56,14 +61,19 @@ func GetCharacterCreationConfig() *CharacterCreationConfig {
 		SkillAxeTries:   0,
 		SkillDist:       10,
 		SkillDistTries:  0,
-		SkillShielding:  10,
-		SkillFishing:    10,
-		MagLevel:        0,
-		Level:           8,
-		LookBody:        69,
-		LookFeet:        76,
-		LookHead:        78,
-		LookLegs:        58,
+		SkillShielding:      10,
+		SkillShieldingTries:  0,
+		SkillFishing:         10,
+		SkillFishingTries:   0,
+		SkillFistTries:      0,
+		MagLevel:            0,
+		Level:               8,
+		LookBody:            69,
+		LookFeet:            76,
+		LookHead:            78,
+		LookLegs:            58,
+		LookAddons:          0,
+		Stamina:             2520,
 	}
 }
 

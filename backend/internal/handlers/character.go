@@ -78,6 +78,21 @@ type CharacterDetailsResponse struct {
 	Deaths    []Death          `json:"deaths"`
 }
 
+type Character struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Vocation   string `json:"vocation"`
+	Level      int    `json:"level"`
+	World      string `json:"world"`
+	Status     string `json:"status"`
+	LookType   int    `json:"lookType"`
+	LookHead   int    `json:"lookHead"`
+	LookBody   int    `json:"lookBody"`
+	LookLegs  int    `json:"lookLegs"`
+	LookFeet   int    `json:"lookFeet"`
+	LookAddons int    `json:"lookAddons"`
+}
+
 func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(middleware.UserIDKey).(int)
 	if !ok {
@@ -155,14 +170,17 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 		INSERT INTO players (
 			name, group_id, account_id, level, vocation,
 			health, healthmax, experience,
-			lookbody, lookfeet, lookhead, looklegs, looktype,
+			lookbody, lookfeet, lookhead, looklegs, looktype, lookaddons,
 			maglevel, mana, manamax, manaspent, town_id,
-			conditions, cap, sex,
+			conditions, cap, sex, stamina,
+			skill_fist, skill_fist_tries,
 			skill_club, skill_club_tries,
 			skill_sword, skill_sword_tries,
 			skill_axe, skill_axe_tries,
-			skill_dist, skill_dist_tries
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			skill_dist, skill_dist_tries,
+			skill_shielding, skill_shielding_tries,
+			skill_fishing, skill_fishing_tries
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := database.DB.ExecContext(ctx, query,
@@ -179,6 +197,7 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 		charConfig.LookHead,        // lookhead
 		charConfig.LookLegs,        // looklegs
 		lookType,                   // looktype
+		charConfig.LookAddons,      // lookaddons
 		charConfig.MagLevel,        // maglevel
 		charConfig.Mana,            // mana
 		charConfig.MaxMana,         // manamax
@@ -187,6 +206,9 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 		[]byte{},                   // conditions (empty blob)
 		charConfig.Cap,             // cap
 		sexID,                      // sex
+		charConfig.Stamina,         // stamina
+		charConfig.SkillFist,       // skill_fist
+		charConfig.SkillFistTries,  // skill_fist_tries
 		charConfig.SkillClub,       // skill_club
 		charConfig.SkillClubTries,  // skill_club_tries
 		charConfig.SkillSword,      // skill_sword
@@ -195,6 +217,10 @@ func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 		charConfig.SkillAxeTries,   // skill_axe_tries
 		charConfig.SkillDist,       // skill_dist
 		charConfig.SkillDistTries,  // skill_dist_tries
+		charConfig.SkillShielding,  // skill_shielding
+		charConfig.SkillShieldingTries, // skill_shielding_tries
+		charConfig.SkillFishing,    // skill_fishing
+		charConfig.SkillFishingTries, // skill_fishing_tries
 	)
 
 	if err != nil {
@@ -225,21 +251,6 @@ func GetCharactersHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
-
-	type Character struct {
-		ID         int    `json:"id"`
-		Name       string `json:"name"`
-		Vocation   string `json:"vocation"`
-		Level      int    `json:"level"`
-		World      string `json:"world"`
-		Status     string `json:"status"`
-		LookType   int    `json:"lookType"`
-		LookHead   int    `json:"lookHead"`
-		LookBody   int    `json:"lookBody"`
-		LookLegs   int    `json:"lookLegs"`
-		LookFeet   int    `json:"lookFeet"`
-		LookAddons int    `json:"lookAddons"`
-	}
 
 	query := `
 		SELECT
