@@ -28,6 +28,27 @@ export interface CharacterDetails extends Outfit {
   created: number
   accountStatus: string
   status: string
+  health: number
+  healthMax: number
+  mana: number
+  manaMax: number
+  magicLevel: number
+  skillFist: number
+  skillClub: number
+  skillSword: number
+  skillAxe: number
+  skillDist: number
+  skillDef: number
+  skillFish: number
+  soul?: number
+  cap?: number
+  equipment?: EquipmentItem[]
+}
+
+export interface EquipmentItem {
+  slot: number
+  itemId: number
+  count: number
 }
 
 export interface OnlinePlayer extends Outfit {

@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '../../services/api'
 import { makeOutfit } from '../../utils/outfit'
 import { formatDateTime } from '../../utils/date'
+import CharacterDetailsSection from '../../components/character/CharacterDetails'
 import type { JSX } from 'react'
 import type { CharacterDetails, Death, CharacterDetailsResponse } from '../../types/character'
 
@@ -19,28 +20,28 @@ export default function CharacterDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    const fetchCharacterDetails = async () => {
-      try {
-        setLoading(true)
-        setError('')
-        const response = await api.get<{ data: CharacterDetailsResponse }>(`/characters/${characterName}`, { public: true })
-        setCharacter(response.data.character)
-        setDeaths(response.data.deaths || [])
-      } catch (err: any) {
-        setError(err.message || 'Character not found')
-      } finally {
-        setLoading(false)
-      }
-    }
+  const fetchCharacterDetails = useCallback(async () => {
+    if (!characterName) return
 
-    if (characterName) {
-      fetchCharacterDetails()
+    try {
+      setLoading(true)
+      setError('')
+      const response = await api.get<{ data: CharacterDetailsResponse }>(`/characters/${characterName}`, { public: true })
+      setCharacter(response.data.character)
+      setDeaths(response.data.deaths || [])
+    } catch (err: any) {
+      setError(err.message || 'Character not found')
+    } finally {
+      setLoading(false)
     }
   }, [characterName])
 
+  useEffect(() => {
+    fetchCharacterDetails()
+  }, [fetchCharacterDetails])
 
-  const formatDeathDescription = (death: Death): JSX.Element => {
+
+  const formatDeathDescription = useCallback((death: Death): JSX.Element => {
     const parts: string[] = []
     const segments = death.killedBy.split(', ')
     
@@ -82,7 +83,7 @@ export default function CharacterDetailsPage() {
         })}
       </span>
     )
-  }
+  }, [])
 
   if (loading) {
     return (
@@ -209,6 +210,11 @@ export default function CharacterDetailsPage() {
               </div>
             </div>
           </div>
+
+          {/* Character Details */}
+          {character && (
+            <CharacterDetailsSection character={character} />
+          )}
 
           {/* Deaths */}
           {deaths.length > 0 && (

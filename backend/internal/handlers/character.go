@@ -268,13 +268,28 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		LastSeen     int64  `json:"lastSeen"`
 		Created      int64  `json:"created"`
 		AccountStatus string `json:"accountStatus"`
-		Status       string `json:"status"` // online/offline
+		Status       string `json:"status"`
 		LookType     int    `json:"lookType"`
 		LookHead     int    `json:"lookHead"`
 		LookBody     int    `json:"lookBody"`
 		LookLegs     int    `json:"lookLegs"`
 		LookFeet     int    `json:"lookFeet"`
 		LookAddons   int    `json:"lookAddons"`
+		Health       int64   `json:"health"`
+		HealthMax    int64   `json:"healthMax"`
+		Mana         int64   `json:"mana"`
+		ManaMax      int64   `json:"manaMax"`
+		MagicLevel   int     `json:"magicLevel"`
+		SkillFist    int     `json:"skillFist"`
+		SkillClub    int     `json:"skillClub"`
+		SkillSword   int     `json:"skillSword"`
+		SkillAxe      int     `json:"skillAxe"`
+		SkillDist     int     `json:"skillDist"`
+		SkillDef      int     `json:"skillDef"`
+		SkillFish     int     `json:"skillFish"`
+		Soul         int     `json:"soul"`
+		Cap          int     `json:"cap"`
+		Equipment    []EquipmentItem `json:"equipment"`
 	}
 
 	type Death struct {
@@ -314,7 +329,21 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			COALESCE(p.lookbody, 0) as lookbody,
 			COALESCE(p.looklegs, 0) as looklegs,
 			COALESCE(p.lookfeet, 0) as lookfeet,
-			COALESCE(p.lookaddons, 0) as lookaddons
+			COALESCE(p.lookaddons, 0) as lookaddons,
+			COALESCE(p.health, 0) as health,
+			COALESCE(p.healthmax, 0) as healthmax,
+			COALESCE(p.mana, 0) as mana,
+			COALESCE(p.manamax, 0) as manamax,
+			COALESCE(p.maglevel, 0) as maglevel,
+			COALESCE(p.skill_fist, 10) as skill_fist,
+			COALESCE(p.skill_club, 10) as skill_club,
+			COALESCE(p.skill_sword, 10) as skill_sword,
+			COALESCE(p.skill_axe, 10) as skill_axe,
+			COALESCE(p.skill_dist, 10) as skill_dist,
+			COALESCE(p.skill_shielding, 10) as skill_shielding,
+			COALESCE(p.skill_fishing, 10) as skill_fishing,
+			COALESCE(p.soul, 0) as soul,
+			COALESCE(p.cap, 0) as cap
 		FROM players p
 		LEFT JOIN players_online po ON p.id = po.player_id
 		LEFT JOIN towns t ON p.town_id = t.id
@@ -346,6 +375,20 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		&char.LookLegs,
 		&char.LookFeet,
 		&char.LookAddons,
+		&char.Health,
+		&char.HealthMax,
+		&char.Mana,
+		&char.ManaMax,
+		&char.MagicLevel,
+		&char.SkillFist,
+		&char.SkillClub,
+		&char.SkillSword,
+		&char.SkillAxe,
+		&char.SkillDist,
+		&char.SkillDef,
+		&char.SkillFish,
+		&char.Soul,
+		&char.Cap,
 	)
 
 	if err == sql.ErrNoRows {
@@ -387,6 +430,34 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		char.AccountStatus = "Free Account"
 	}
 
+	type EquipmentItem struct {
+		Slot    int `json:"slot"`
+		ItemID  int `json:"itemId"`
+		Count   int `json:"count"`
+	}
+
+	equipmentQuery := `
+		SELECT sid, itemtype, count
+		FROM player_items
+		WHERE player_id = ? AND pid = 0 AND sid IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+		ORDER BY sid
+	`
+
+	equipmentRows, err := database.DB.QueryContext(ctx, equipmentQuery, playerID)
+	equipment := make([]EquipmentItem, 0, 10)
+	if err == nil {
+		defer equipmentRows.Close()
+		for equipmentRows.Next() {
+			var item EquipmentItem
+			if err := equipmentRows.Scan(&item.Slot, &item.ItemID, &item.Count); err == nil {
+				equipment = append(equipment, item)
+			}
+		}
+		if err = equipmentRows.Err(); err != nil {
+		}
+	}
+	char.Equipment = equipment
+
 	deathsQuery := `
 		SELECT time, level, killed_by, is_player
 		FROM player_deaths
@@ -396,10 +467,7 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	`
 
 	rows, err := database.DB.QueryContext(ctx, deathsQuery, playerID)
-	if err != nil {
-	}
-
-	deaths := make([]Death, 0)
+	deaths := make([]Death, 0, 20)
 	if err == nil {
 		defer rows.Close()
 		for rows.Next() {
@@ -407,6 +475,8 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 			if err := rows.Scan(&death.Time, &death.Level, &death.KilledBy, &death.IsPlayer); err == nil {
 				deaths = append(deaths, death)
 			}
+		}
+		if err = rows.Err(); err != nil {
 		}
 	}
 
