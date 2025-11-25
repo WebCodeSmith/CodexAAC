@@ -1,5 +1,3 @@
-const OUTFIT_IMAGE_BASE_URL = 'https://outfit-images.ots.me/latest_walk/animoutfit.php'
-
 export interface OutfitParams {
   id: number
   addons: number
@@ -10,9 +8,11 @@ export interface OutfitParams {
 }
 
 export const makeOutfit = (params: OutfitParams): string => {
+  const baseUrl = process.env.NEXT_PUBLIC_OUTFIT_IMAGE_BASE_URL?.trim()
+
   const { id, addons, head, body, legs, feet } = params
 
-  const url = new URL(OUTFIT_IMAGE_BASE_URL)
+  const url = new URL(baseUrl)
   const searchParams = new URLSearchParams()
 
   searchParams.set('id', String(id))
@@ -23,6 +23,6 @@ export const makeOutfit = (params: OutfitParams): string => {
   searchParams.set('feet', String(feet))
 
   url.search = searchParams.toString()
+
   return url.toString()
 }
-
