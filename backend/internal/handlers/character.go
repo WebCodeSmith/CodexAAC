@@ -25,6 +25,59 @@ type CreateCharacterResponse struct {
 	ID      int    `json:"id,omitempty"`
 }
 
+type CharacterDetails struct {
+	Name          string          `json:"name"`
+	Sex           string          `json:"sex"`
+	Vocation      string          `json:"vocation"`
+	Level         int             `json:"level"`
+	Residence     string          `json:"residence"`
+	GuildName     string          `json:"guildName,omitempty"`
+	GuildRank     string          `json:"guildRank,omitempty"`
+	LastSeen      int64           `json:"lastSeen"`
+	Created       int64           `json:"created"`
+	AccountStatus string          `json:"accountStatus"`
+	Status        string          `json:"status"`
+	LookType      int             `json:"lookType"`
+	LookHead      int             `json:"lookHead"`
+	LookBody      int             `json:"lookBody"`
+	LookLegs      int             `json:"lookLegs"`
+	LookFeet      int             `json:"lookFeet"`
+	LookAddons    int             `json:"lookAddons"`
+	Health        int64           `json:"health"`
+	HealthMax     int64           `json:"healthMax"`
+	Mana          int64           `json:"mana"`
+	ManaMax       int64           `json:"manaMax"`
+	MagicLevel    int             `json:"magicLevel"`
+	SkillFist     int             `json:"skillFist"`
+	SkillClub     int             `json:"skillClub"`
+	SkillSword    int             `json:"skillSword"`
+	SkillAxe      int             `json:"skillAxe"`
+	SkillDist     int             `json:"skillDist"`
+	SkillDef      int             `json:"skillDef"`
+	SkillFish     int             `json:"skillFish"`
+	Soul          int             `json:"soul"`
+	Cap           int             `json:"cap"`
+	Equipment     []EquipmentItem `json:"equipment"`
+}
+
+type EquipmentItem struct {
+	Slot   int `json:"slot"`
+	ItemID int `json:"itemId"`
+	Count  int `json:"count"`
+}
+
+type Death struct {
+	Time     int64  `json:"time"`
+	Level    int    `json:"level"`
+	KilledBy string `json:"killedBy"`
+	IsPlayer bool   `json:"isPlayer"`
+}
+
+type CharacterDetailsResponse struct {
+	Character CharacterDetails `json:"character"`
+	Deaths    []Death          `json:"deaths"`
+}
+
 func CreateCharacterHandler(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(middleware.UserIDKey).(int)
 	if !ok {
@@ -257,53 +310,6 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := utils.NewDBContext()
 	defer cancel()
 
-	type CharacterDetails struct {
-		Name         string `json:"name"`
-		Sex          string `json:"sex"`
-		Vocation     string `json:"vocation"`
-		Level        int    `json:"level"`
-		Residence    string `json:"residence"`
-		GuildName    string `json:"guildName,omitempty"`
-		GuildRank    string `json:"guildRank,omitempty"`
-		LastSeen     int64  `json:"lastSeen"`
-		Created      int64  `json:"created"`
-		AccountStatus string `json:"accountStatus"`
-		Status       string `json:"status"`
-		LookType     int    `json:"lookType"`
-		LookHead     int    `json:"lookHead"`
-		LookBody     int    `json:"lookBody"`
-		LookLegs     int    `json:"lookLegs"`
-		LookFeet     int    `json:"lookFeet"`
-		LookAddons   int    `json:"lookAddons"`
-		Health       int64   `json:"health"`
-		HealthMax    int64   `json:"healthMax"`
-		Mana         int64   `json:"mana"`
-		ManaMax      int64   `json:"manaMax"`
-		MagicLevel   int     `json:"magicLevel"`
-		SkillFist    int     `json:"skillFist"`
-		SkillClub    int     `json:"skillClub"`
-		SkillSword   int     `json:"skillSword"`
-		SkillAxe      int     `json:"skillAxe"`
-		SkillDist     int     `json:"skillDist"`
-		SkillDef      int     `json:"skillDef"`
-		SkillFish     int     `json:"skillFish"`
-		Soul         int     `json:"soul"`
-		Cap          int     `json:"cap"`
-		Equipment    []EquipmentItem `json:"equipment"`
-	}
-
-	type Death struct {
-		Time      int64  `json:"time"`
-		Level     int    `json:"level"`
-		KilledBy  string `json:"killedBy"`
-		IsPlayer  bool   `json:"isPlayer"`
-	}
-
-	type CharacterDetailsResponse struct {
-		Character CharacterDetails `json:"character"`
-		Deaths    []Death          `json:"deaths"`
-	}
-
 	var char CharacterDetails
 	var vocationID, sexID int
 	var lastLogin, created int64
@@ -428,12 +434,6 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		char.AccountStatus = "VIP Account"
 	} else {
 		char.AccountStatus = "Free Account"
-	}
-
-	type EquipmentItem struct {
-		Slot    int `json:"slot"`
-		ItemID  int `json:"itemId"`
-		Count   int `json:"count"`
 	}
 
 	equipmentQuery := `
