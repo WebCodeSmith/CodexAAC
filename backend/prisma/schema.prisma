@@ -6,3 +6,13 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model site_pages {
+  id         Int      @id @default(autoincrement())
+  page_key   String   @unique @db.VarChar(50)
+  content    String?  @db.Text
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@map("site_pages")
+}

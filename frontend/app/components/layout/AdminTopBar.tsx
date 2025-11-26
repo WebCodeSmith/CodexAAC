@@ -57,6 +57,13 @@ const adminNavItems: NavItem[] = [
     ],
   },
   {
+    label: 'Content',
+    icon: '📄',
+    dropdown: [
+      { label: 'Rules', href: '/admin/rules', icon: '📜' },
+    ],
+  },
+  {
     label: 'Back to Site',
     href: '/',
     icon: '🏠',
@@ -128,7 +135,7 @@ export default function AdminTopBar() {
   const handleClickOutside = useCallback((event: MouseEvent) => {
     const target = event.target as Node
     const container = containerRef.current
-    
+
     if (container && !container.contains(target)) {
       setOpenDropdown(null)
     }

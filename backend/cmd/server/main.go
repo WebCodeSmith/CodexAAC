@@ -78,6 +78,8 @@ func main() {
 	r.HandleFunc("/api/social/links", handlers.GetSocialLinksHandler).Methods("GET")
 	r.HandleFunc("/api/maintenance/status", handlers.GetMaintenanceStatusPublicHandler).Methods("GET")
 
+	r.HandleFunc("/api/pages/rules", handlers.GetRulesHandler).Methods("GET")
+
 	r.HandleFunc("/login", handlers.TibiaClientLoginHandler).Methods("POST", "OPTIONS")
 
 	protected := r.PathPrefix("/api").Subrouter()
@@ -122,6 +124,7 @@ func main() {
 	admin.HandleFunc("/maintenance", handlers.ToggleMaintenanceHandler).Methods("POST")
 	admin.HandleFunc("/changelogs", handlers.CreateChangelogHandler).Methods("POST")
 	admin.HandleFunc("/changelogs/{id}", handlers.DeleteChangelogHandler).Methods("DELETE")
+	admin.HandleFunc("/pages/rules", handlers.UpdateRulesHandler).Methods("PUT")
 
 	port := os.Getenv("PORT")
 	if port == "" {
