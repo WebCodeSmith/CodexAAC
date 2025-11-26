@@ -5,14 +5,12 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"codexaac-backend/internal/database"
-	"codexaac-backend/pkg/utils"
 	"github.com/joho/godotenv"
 )
 
