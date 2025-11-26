@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '../services/api'
@@ -120,9 +120,7 @@ export default function CreateGuildPage() {
         }
     }, [formData, validateForm, router])
 
-    const availableCharacters = useMemo(() => {
-        return characters
-    }, [characters])
+    const availableCharacters = characters
 
     if (loadingCharacters) {
         return (

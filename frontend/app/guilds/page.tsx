@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import Link from 'next/link'
 import { api } from '../services/api'
 import type { ApiResponse } from '../types/account'
@@ -123,12 +123,13 @@ export default function GuildsPage() {
         setSearch(e.target.value)
     }, [])
 
-    const paginationInfo = useMemo(() => {
-        if (!pagination.total) return null
-        const start = ((page - 1) * pagination.limit) + 1
-        const end = Math.min(page * pagination.limit, pagination.total)
-        return { start, end, total: pagination.total }
-    }, [page, pagination])
+    const paginationInfo = pagination.total
+        ? {
+            start: ((page - 1) * pagination.limit) + 1,
+            end: Math.min(page * pagination.limit, pagination.total),
+            total: pagination.total
+          }
+        : null
 
     return (
         <div className="min-h-screen">

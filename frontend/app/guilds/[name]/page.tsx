@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { api } from '../../services/api'
@@ -155,9 +155,8 @@ export default function GuildDetailsPage() {
         fetchGuildDetails()
     }, [fetchGuildDetails])
 
-    const sortedMembers = useMemo(() => {
-        if (!guild?.members) return []
-        return [...guild.members].sort((a, b) => {
+    const sortedMembers = guild?.members
+        ? [...guild.members].sort((a, b) => {
             if (a.rankLevel !== b.rankLevel) {
                 return b.rankLevel - a.rankLevel
             }
@@ -166,12 +165,11 @@ export default function GuildDetailsPage() {
             }
             return a.name.localeCompare(b.name)
         })
-    }, [guild?.members])
+        : []
 
-    const sortedPendingInvites = useMemo(() => {
-        if (!guild?.pendingInvites) return []
-        return [...guild.pendingInvites].sort((a, b) => b.inviteDate - a.inviteDate)
-    }, [guild?.pendingInvites])
+    const sortedPendingInvites = guild?.pendingInvites
+        ? [...guild.pendingInvites].sort((a, b) => b.inviteDate - a.inviteDate)
+        : []
 
     const closeInviteModal = useCallback(() => {
         setShowInviteModal(false)

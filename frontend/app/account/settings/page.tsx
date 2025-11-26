@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { api } from '../../services/api'
 import type { AccountInfo, AccountApiResponse } from '../../types/account'
@@ -37,12 +37,9 @@ export default function AccountSettingsPage() {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isCanceling, setIsCanceling] = useState(false)
 
-    const timeRemaining = useMemo(() => {
-        if (!userData.deletionScheduledAt) return null
-        const now = Math.floor(Date.now() / 1000)
-        const remaining = userData.deletionScheduledAt - now
-        return remaining > 0 ? remaining : 0
-    }, [userData.deletionScheduledAt])
+    const timeRemaining = userData.deletionScheduledAt
+        ? Math.max(0, userData.deletionScheduledAt - Math.floor(Date.now() / 1000))
+        : null
 
     const fetchAccountInfo = useCallback(async () => {
         try {

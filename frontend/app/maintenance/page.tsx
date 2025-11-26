@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '../services/api'
 import type { MaintenanceData } from '../types/maintenance'
 import type { ApiResponse } from '../types/account'
@@ -27,7 +27,7 @@ export default function MaintenancePage() {
         fetchMaintenanceMessage()
     }, [fetchMaintenanceMessage])
 
-    const displayMessage = useMemo(() => message || DEFAULT_MESSAGE, [message])
+    const displayMessage = message || DEFAULT_MESSAGE
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a]">

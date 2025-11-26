@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '../../services/api'
 import type { ApiResponse } from '../../types/account'
@@ -78,12 +78,7 @@ export default function MaintenancePage() {
         router.push('/admin')
     }, [router])
 
-    const lastUpdatedText = useMemo(() => {
-        if (!status.updatedAt) {
-            return ''
-        }
-        return new Date(status.updatedAt).toLocaleString()
-    }, [status.updatedAt])
+    const lastUpdatedText = status.updatedAt ? new Date(status.updatedAt).toLocaleString() : ''
 
     if (loading) {
         return (
