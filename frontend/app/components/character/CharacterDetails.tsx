@@ -2,6 +2,7 @@
 
 import type { CharacterDetails, EquipmentItem } from '../../types/character'
 import { getItemImageUrl } from '../../utils/item'
+import { makeOutfit } from '../../utils/outfit'
 
 const formatNumber = (num: number): string => num.toLocaleString('pt-BR')
 
@@ -62,33 +63,53 @@ export default function CharacterDetailsSection({ character }: { character: Char
       </h2>
 
       <div className="space-y-4">
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[#d0d0d0] text-sm font-medium">Health:</span>
-            <span className="text-[#d0d0d0] text-sm">
-              {formatNumber(character.health)}/{formatNumber(character.healthMax)} ({Math.round(healthPercent)}%)
-            </span>
+        <div className="flex gap-4 items-start">
+          <div>
+            <h3 className="text-[#d0d0d0] text-xs font-medium mb-1.5">Current outfit:</h3>
+            <div className="inline-flex justify-center items-center bg-[#1a1a1a] rounded p-1.5 border border-[#404040]/40">
+              <img
+                src={makeOutfit({
+                  id: character.lookType,
+                  addons: character.lookAddons,
+                  head: character.lookHead,
+                  body: character.lookBody,
+                  legs: character.lookLegs,
+                  feet: character.lookFeet,
+                })}
+                alt={`${character.name} outfit`}
+                className="w-12 h-12 object-contain"
+              />
+            </div>
           </div>
-          <div className="w-full bg-[#1a1a1a] rounded-full h-4 border border-[#404040] overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-red-600 to-red-500 transition-all duration-300"
-              style={{ width: `${healthPercent}%` }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[#d0d0d0] text-sm font-medium">Mana:</span>
-            <span className="text-[#d0d0d0] text-sm">
-              {formatNumber(character.mana)}/{formatNumber(character.manaMax)} ({Math.round(manaPercent)}%)
-            </span>
-          </div>
-          <div className="w-full bg-[#1a1a1a] rounded-full h-4 border border-[#404040] overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-blue-600 to-blue-500 transition-all duration-300"
-              style={{ width: `${manaPercent}%` }}
-            />
+          <div className="flex-1 space-y-2">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[#d0d0d0] text-xs font-medium">Health:</span>
+                <span className="text-[#d0d0d0] text-xs">
+                  {formatNumber(character.health)}/{formatNumber(character.healthMax)} ({Math.round(healthPercent)}%)
+                </span>
+              </div>
+              <div className="w-full bg-[#1a1a1a] rounded-full h-2.5 border border-[#404040] overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-red-600 to-red-500 transition-all duration-300"
+                  style={{ width: `${healthPercent}%` }}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[#d0d0d0] text-xs font-medium">Mana:</span>
+                <span className="text-[#d0d0d0] text-xs">
+                  {formatNumber(character.mana)}/{formatNumber(character.manaMax)} ({Math.round(manaPercent)}%)
+                </span>
+              </div>
+              <div className="w-full bg-[#1a1a1a] rounded-full h-2.5 border border-[#404040] overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-600 to-blue-500 transition-all duration-300"
+                  style={{ width: `${manaPercent}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
