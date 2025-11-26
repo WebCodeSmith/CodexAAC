@@ -94,7 +94,21 @@ ACCOUNT_DELETION_GRACE_PERIOD_DAYS=30
 MIN_GUILD_LEVEL=8
 ```
 
-**⚠️ IMPORTANTE:** 
+#### Towns (opcional)
+
+Você pode configurar as towns que estarão disponíveis no frontend para seleção durante a criação de personagens com a variável `CHARACTER_TOWNS` no `.env` do backend.
+
+Formato (exemplo):
+```env
+CHARACTER_TOWNS=1:Rookgaard,2:Thais,3:Venore
+```
+Ou:
+```env
+CHARACTER_TOWNS=Rookgaard=1,Thais=2
+```
+Se a variável não estiver definida, o servidor adicionará automaticamente `Rookgaard` (id 1) como padrão.
+
+**⚠️ IMPORTANTE:**
 - Substitua `usuario` e `senha` pelas credenciais do seu MySQL
 - Gere uma chave JWT segura para produção (pode usar: `openssl rand -base64 32`)
 - O `SERVER_PATH` é opcional e deve apontar para a pasta raiz do seu servidor Tibia (onde está o `config.lua`)
@@ -230,6 +244,7 @@ CodexAAC/
 - `GET /api/characters` - Listar personagens
 - `POST /api/characters` - Criar personagem
 - `GET /api/characters/{name}` - Detalhes do personagem
+- `GET /api/towns` - Listar cidades configuradas (usado na criação de personagens)
 
 ### Guildas
 - `GET /api/guilds` - Listar guildas
