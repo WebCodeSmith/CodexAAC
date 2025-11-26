@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../services/api'
 import type { ApiResponse } from '../../types/account'
-import type { PageContent } from '../../types/page'
+import type { PageContent } from '../../types/common'
 
 export default function RulesPage() {
     const [content, setContent] = useState<string>('')

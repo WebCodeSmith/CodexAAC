@@ -1,14 +1,11 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '../../services/api'
 import type { ApiResponse } from '../../types/account'
-import type { PageContent } from '../../types/page'
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
-import 'react-quill/dist/quill.snow.css'
+import type { PageContent } from '../../types/common'
+import TiptapEditor from '../../components/admin/TiptapEditor'
 
 export default function AdminRulesPage() {
     const router = useRouter()
@@ -98,7 +95,11 @@ export default function AdminRulesPage() {
                 <div className="bg-[#252525]/95 backdrop-blur-sm rounded-xl border-2 border-[#505050]/70 p-6 shadow-2xl">
                     <label className="block text-[#e0e0e0] font-semibold mb-2">Rules Content</label>
                     <div className="mb-4">
-                        <ReactQuill value={content} onChange={setContent} theme="snow" />
+                        <TiptapEditor 
+                            value={content} 
+                            onChange={setContent}
+                            placeholder="Enter rules content here..."
+                        />
                     </div>
 
                     <div className="flex gap-4 justify-end">
