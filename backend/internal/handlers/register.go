@@ -70,12 +70,14 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	hashedPassword := utils.HashSHA1(req.Password)
 	
+	accountName := req.Email
+	
 	query := `
 		INSERT INTO accounts (name, password, email, creation, premdays, type) 
 		VALUES (?, ?, ?, ?, 0, 1)
 	`
 	
-	result, err := database.DB.ExecContext(ctx, query, "", hashedPassword, req.Email, time.Now().Unix())
+	result, err := database.DB.ExecContext(ctx, query, accountName, hashedPassword, req.Email, time.Now().Unix())
 	if err != nil {
 		if utils.HandleDBError(w, err) {
 			return

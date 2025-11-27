@@ -483,10 +483,10 @@ func GetCharacterDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	equipmentQuery := `
-		SELECT sid, itemtype, count
+		SELECT pid, itemtype, count
 		FROM player_items
-		WHERE player_id = ? AND pid = 0 AND sid IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-		ORDER BY sid
+		WHERE player_id = ? AND pid IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+		ORDER BY pid
 	`
 
 	equipmentRows, err := database.DB.QueryContext(ctx, equipmentQuery, playerID)
