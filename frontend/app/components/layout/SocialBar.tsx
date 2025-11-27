@@ -2,12 +2,18 @@
 
 import Link from 'next/link'
 import { useSocialLinks } from '../../hooks/useSocialLinks'
+import BoostedBanner from './BoostedBanner'
 
 export default function SocialBar() {
   const links = useSocialLinks()
 
   return (
-    <div className="bg-[#252525]/95 backdrop-blur-sm rounded-xl border-2 border-[#404040]/60 p-4 shadow-xl mb-6">
+    <div className="relative mt-12 bg-[#252525]/95 backdrop-blur-sm rounded-tl-xl rounded-tr-none rounded-bl-xl rounded-br-xl border-2 border-[#404040]/60 p-4 shadow-xl mb-6 overflow-visible">
+      {/* Boosted Banner - Tabs style on top */}
+      <div className="absolute bottom-full right-[-2px] z-10">
+        <BoostedBanner />
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-4 text-sm">
         {/* Left Side - Social Media Links */}
         <div className="flex items-center gap-4 flex-wrap">
@@ -46,11 +52,9 @@ export default function SocialBar() {
         </div>
 
         {/* Right Side - Players Online */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-[#e0e0e0]">👥</span>
-            <span className="text-[#00ff88] font-semibold">152 Players Online</span>
-          </div>
+        <div className="flex items-center gap-2 bg-[#1a1a1a]/90 backdrop-blur-sm rounded-lg border border-[#3a3a3a] px-3 py-2 shadow-lg">
+          <span className="text-[#3b82f6] text-base">👥</span>
+          <span className="text-[#00ff88] font-bold text-xs">152 Players Online</span>
         </div>
       </div>
     </div>
