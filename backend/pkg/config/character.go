@@ -1,6 +1,9 @@
 package config
 
-import "unicode"
+import (
+	"strings"
+	"unicode"
+)
 
 const (
 	UnknownVocation = "Unknown"
@@ -127,6 +130,14 @@ func GetVocationName(vocationID int) string {
 		return name
 	}
 	return UnknownVocation
+}
+
+func GetVocationID(vocationName string) int {
+	vocationName = strings.ToLower(vocationName)
+	if id, ok := VocationMapping[vocationName]; ok {
+		return id
+	}
+	return 0
 }
 
 func GetSexName(sexID int) string {
