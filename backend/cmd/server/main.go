@@ -109,6 +109,7 @@ func main() {
 	r.HandleFunc("/api/changelogs", handlers.GetChangelogsHandler).Methods("GET")
 	r.HandleFunc("/api/guilds", handlers.GetGuildsHandler).Methods("GET")
 	r.HandleFunc("/api/boosted", handlers.GetBoostedHandler).Methods("GET")
+	r.HandleFunc("/api/banishments", handlers.GetBanishmentsHandler).Methods("GET")
 
 	guildDetailsRouter := r.PathPrefix("/api/guilds/{name}").Subrouter()
 	guildDetailsRouter.Use(middleware.OptionalAuthMiddleware)
