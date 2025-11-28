@@ -106,6 +106,7 @@ func main() {
 
 	r.HandleFunc("/api/characters/{name}", handlers.GetCharacterDetailsHandler).Methods("GET")
 	r.HandleFunc("/api/players/online", handlers.GetOnlinePlayersHandler).Methods("GET")
+	r.HandleFunc("/api/ranking", handlers.GetRankingHandler).Methods("GET")
 	r.HandleFunc("/api/changelogs", handlers.GetChangelogsHandler).Methods("GET")
 	r.HandleFunc("/api/guilds", handlers.GetGuildsHandler).Methods("GET")
 	r.HandleFunc("/api/boosted", handlers.GetBoostedHandler).Methods("GET")
