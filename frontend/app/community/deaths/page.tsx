@@ -26,7 +26,7 @@ export default function DeathsPage() {
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '3',
+        limit: '50',
       })
       if (search) {
         params.append('search', search)
